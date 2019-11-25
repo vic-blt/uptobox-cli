@@ -1,0 +1,7 @@
+module.exports = {
+    paths: {
+        root:   '//',
+        movies: '//Movies',
+        series: '//Series'
+    }
+};
