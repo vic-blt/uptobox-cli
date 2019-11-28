@@ -10,44 +10,44 @@
 
 Arguments for index.js : 
 
-- `search <file_name>`\
-  **Details:** It's case insensitive and works with partial filenames.\
-  **Output:** A table with the properties `file_name`, `file_size` and `file_code` of the matched files.
-
-- `list <folder_name>`\
-  **Details:** `<folder_name>` has to be defined in `constants` this way : `folder_name: 'path'`.\
-  **Output:** A list of `<folder_name>`'s files.
-
+- `listFiles`
+  - `--path <constant>`\
+    `<constant>` is defined in the object `paths` of the file `constants`.
+  - `--limit 0...100`\
+    A limit of 0 is the same than a limit of 100.
+  - `--offset <offset>`
+  - `--order <column_name>`\
+    Order by `file_name`, `file_size`...
+  - `--dir 'asc'|'desc'`
+  - `--search <search_value>`\
+    It's case insensitive and works with partial filenames.
+  - `--field <search_field>`
 - `getDownloadLink <file_code>`\
   **Output:** A hotlink of the file ready to be downloaded.
-
 - `getStreamingLink <file_code>`\
   **Output:** If the file is available through Uptostream, it returns a list of links for the different resolutions and languages available.
-
-- `getAccount`\
+- `getUserData`\
   **Output:** Your account's details.
-
-- `add <uptobox_url>`\
+- `addFile <uptobox_url>`\
   **Details:** Until there's a dedicated API endpoint for this feature, this will **ONLY** work if you log in your Uptobox account, retrieve the XFSS cookie and **KEEP** your session active (don't log out). Then save the XFSS value in the file `xfss`.\
   The XFSS cookie expiration is set to 1 year.\
   **Output:** A simple `ok` if it was successfully added to your account.
-
-- `update <file_code> <new_name> <is_public> <description> <password>`\
-  **Details:** You can omit arguments but only if you're not providing an argument which is positioned after the ones omitted.\
-  For example, you can omit `description` and `password` but if you want to provide `password`, you have to provide `description`.\
+- `updateFile --id <file_code> --name <new_name> [--public 0|1 --desc <description> --passwd <password>]`\
+  **Details:** Arguments in square brackets are optional.\
   **Output:** `Updated` if you changed a property else `Nothing to update`.
-
+- `updateFilesPublic --public 0|1 --ids "id1,id2,id3,..."`\
+  **Details**: Pass file codes separated by a comma to `--ids`.\
+  **Output:** `Updated <nb_updated>` if you have updated at least a file else `Nothing to update`.
 - `convertPoints <points>`\
   **Details:** Exchange your UTB points in premium days.
-
-- `setSSL 0|1`
-
-- `setSecurityLock 0|1`
-
-- `setDirectDL 0|1`
+- `createVoucher --time <time> --quantity <quantity>`\
+  **Details**: `time` needs to be one of these values : '30d', '365d' or '730d'.
+- `setSSL 0|1` *Requires an Uptobox premium account*
+- `setSecurityLock 0|1` *Requires an Uptobox premium account*
+- `setDirectDL 0|1` *Requires an Uptobox premium account*
 
 ## Dependencies
 
 - [filesize](https://www.npmjs.com/package/filesize)
 - [uptobox-api](https://www.npmjs.com/package/uptobox-api)
-
+- [minimist](https://www.npmjs.com/package/minimist)
