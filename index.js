@@ -81,7 +81,7 @@ class Uptobox {
     async addFile() { return uptobox.addFile(`${argv._[1]}?add-to-account`, `xfss=${xfss}`).then(({data}) => data) }
 
     // https://docs.uptobox.com/?javascript#retrieve-files-and-folders
-    async getList(options) { return uptobox.listFiles(options).then(({data}) => data.data) };
+    async getList(options) { return uptobox.list(options).then(({data}) => data.data) };
 
     // https://docs.uptobox.com/?javascript#retrieve-user-data
     async getUserData() { return uptobox.getUserData(token).then(({data}) => !data.statusCode ? data.data : data.message) }
@@ -142,16 +142,6 @@ class Uptobox {
     async updateFilesPublic() {
         return uptobox.updateFilesPublicProperty(token, argv.ids, argv.public)
             .then(({data}) => !data.statusCode ? (data.data.updated ? `Updated ${data.data.updated}` : 'Nothing to update') : data.message)
-    }
-
-    async renameEpisodes() {
-        let episodesList = await this.listFiles();
-
-        for (const {file_name, file_code} of episodesList){
-            argv.name = `${argv.name} ${file_name.match(/s\d+e\d+/ig)[0]}${file_name.match(/\.\w+$/g)[0]}`;
-            argv.id = file_code;
-            console.log(await this.updateFile());
-        }
     }
 }
 
