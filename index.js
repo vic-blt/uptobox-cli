@@ -4,13 +4,36 @@ const filesize = require('filesize');
 const argv = require('minimist')(process.argv.slice(2));
 
 // Constants
-const constants = require('./constants');
 const token = require('./token');
 const xfss = require('./xfss');
 
 class Uptobox {
     constructor() {
         this.isPremium = 0;
+        this.help = `Choose a valid command :\n
+            listFiles
+                --path <path>
+                --limit 1..100
+                --offset <offset>
+                --order 'file_name'|'file_size'|'file_created'|'file_downloads'|'transcoded'
+                --dir 'asc'|'desc'
+                --search <search_value>
+                --search-field 'file_name'|'file_size'|'file_created'|'file_downloads'|'transcoded'
+            getDownloadLink <file_code>
+            getStreamingLink <file_code>
+            getUserData
+            addFile <uptobox_url>
+            updateFile <file_code> 
+                --name <new_name>
+                --public 0|1
+                --desc <description>
+                --passwd <password>
+            updateFilesPublic 0|1 <file_codes>
+            convertPoints <points>
+            createVoucher <time> <quantity>
+            setSSL 0|1
+            setSecurityLock 0|1
+            setDirectDL 0|1`;
     }
 
     async init() { return this.isPremium = (await this.getUserData()).premium }
@@ -18,7 +41,7 @@ class Uptobox {
     async listFiles() {
         let options = {
             token: token,
-            path: constants.paths[argv.path || 'root'],
+            path: argv.path || '//',
             limit: argv.limit || 100,
             offset: argv.offset || 0,
             orderBy: argv.order || 'file_name',
@@ -26,7 +49,7 @@ class Uptobox {
         };
 
         if (argv.search) {
-            options['searchField'] = argv.field || 'file_name';
+            options['searchField'] = argv['search-field'] || 'file_name';
             options['search'] = argv.search;
         }
 
@@ -112,7 +135,7 @@ class Uptobox {
             password: argv.passwd
         };
 
-        return uptobox.updateFileProperties(options).then(({data}) => !data.statusCode ? (data.data.updated ? `Updated : ${options.new_name}` : 'Nothing to update') : data.message);
+        return uptobox.updateFileProperties(options).then(({data}) => !data.statusCode ? (data.data.updated ? `Updated` : 'Nothing to update') : data.message);
     }
 
     // https://docs.uptobox.com/?javascript#update-multiple-file-39-s-public-option
@@ -130,29 +153,6 @@ class Uptobox {
             console.log(await this.updateFile());
         }
     }
-
-    help() {
-        return `Choose a valid command :
-    listFiles
-        --path <constant>
-        --limit 0...100
-        --offset <offset>
-        --order <column_name>
-        --dir 'asc'|'desc'
-        --search <search_value>
-        --field <search_field>
-    getDownloadLink <file_code>
-    getStreamingLink <file_code>
-    getUserData
-    addFile <uptobox_url>
-    updateFile --id <file_code> --name <new_name> [--public 0|1 --desc <description> --passwd <password>]
-    updateFilesPublic --public 0|1 --ids "id1,id2,id3,..."
-    convertPoints <points>
-    createVoucher --time <time> --quantity <quantity>
-    setSSL 0|1
-    setSecurityLock 0|1
-    setDirectDL 0|1`
-    }
 }
 
 (async () => {
@@ -165,7 +165,7 @@ class Uptobox {
         process.exit();
     }
 
-    let result = await upto[argv._[0] || 'help']();
+    let result = upto[argv._[0]] ? await upto[argv._[0]]() : upto.help;
 
     switch(argv._[0]){
         case 'listFiles':
@@ -178,7 +178,7 @@ class Uptobox {
             break;
 
         default:
-            if (result) console.log(result);
+            console.log(result);
             break;
     }
 })();
