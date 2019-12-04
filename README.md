@@ -1,17 +1,36 @@
 # Uptobox CLI
 
-## Requirement
+## Requirements
 
-- Retrieve your API token from your Uptobox account : [How to find my API token ?](https://docs.uptobox.com/#how-to-find-my-api-token)
+- **Node.js**
+- **NPM**
 
-- Install dependencies : `npm i`
+## Setup
+
+- Create a `config.js` file in the same folder than `index.js`
+  - `token`: Your uptobox account's token ([How to find my API token ?](https://docs.uptobox.com/#how-to-find-my-api-token)).
+  - `premium`: `1` if you have a premium account, else `0`.
+  - `xfss`: The XFSS cookie, it's only required for `addFile` command.
+  
+  ```js
+  let token = '<YOUR_API_TOKEN>';
+  let premium = 0;
+  let xfss = '<XFSS_SESSION_COOKIE>';
+  
+  module.exports = {token, premium, xfss};
+  ```
+  
+- Install dependencies : `npm install`
 
 ## Usage
 
 #### Commands : 
 
-- `listFiles`\
+- `list`\
   **Options:**
+  - `--type <type>`\
+    Values are `'file'` or `'folder'`.\
+    **Default:** `'file'`.
   - `--path <path>`\
     Needs to be prefixed by a double slash, e.g., `'//Movies'`.\
     **Default:** `'//'` (root path).
@@ -29,26 +48,23 @@
     Sort direction.\
     **Default:** `'asc'`.
   - `--search <search_value>`\
-    Case insensitive and works with partial filenames.
+    Case insensitive search. `<search_value>` can be a partial filename.
   - `--search-field <column_name>`\
     See `--order` for `<column_name>` value.
     
-- `getDownloadLink <file_code>`\
-  **Output:** A hotlink of the file ready to be downloaded.
+- `getDownloadLink <file_code>`
   
 - `getStreamingLink <file_code>`\
-  **Output:** If the file is available through Uptostream, it returns a list of links for the different resolutions and languages available.
+  If the file is available through Uptostream, it returns a list of links for the different resolutions and languages available.
 
-- `getUserData`\
-  **Output:** Your account's details.
+- `getUserData`
 
 - `addFile <uptobox_url>`\
-  **Details:** Until there's a dedicated API endpoint for this feature, this will **ONLY** work if you log in your Uptobox account, retrieve the XFSS cookie and **KEEP** your session active (don't log out). Then save the XFSS value in the file `xfss`.\
+  Until there's a dedicated API endpoint for this feature, this will **ONLY** work if you log in your Uptobox account, retrieve the XFSS cookie and **KEEP** your session active (don't log out). Then save the XFSS value in the file `xfss`.\
   The XFSS cookie expiration is set to 1 year.\
-  **Output:** A simple `ok` if it was successfully added to your account.
+  A simple `ok` is returned if it was successfully added to your account.
 
 - `updateFile <file_code>`\
-  **Output:** `Updated` if you changed a property else `Nothing to update`.\
   **Options:**
   - `--name <new_name>`\
     New file name value.
@@ -59,15 +75,14 @@
   - `--passwd <password>`\
     New password value.
 
-- `updateFilesPublic <public> <file_codes>`\
-  **Output:** `Updated <nb_updated>` if you have updated at least 1 file else `Nothing to update`.\
-  **Details:** `<file_codes>` is a list of file codes separated by commas and `<public>` equals to `0` or `1`.
+- `updateFilesPublic <file_codes> <public>`\
+  File codes have to be separated by commas, e.g., `'uuuuuuuuuu,uuuuuuuuuu'`.
 
 - `convertPoints <points>`\
-  **Details:** Exchange your UTB points in premium days.
+  Exchange your UTB points in premium days.
 
 - `createVoucher <time> <quantity>`\
-  **Details**: `time` needs to be one of these values : `'30d'`, `'365d'` or `'730d'`.
+  `<time>` needs to be one of these values : `'30d'`, `'365d'` or `'730d'`.
 
 - `setSSL 0|1` (**Requires an Uptobox premium account**)\
   Force `https` protocol for downloading.
@@ -77,6 +92,22 @@
 
 - `setDirectDL 0|1` (**Requires an Uptobox premium account**)\
   Automatically triggers the download when reaching an Uptobox link.
+
+- `moveFolder <folder_id> <destination_folder_id>`
+
+- `moveFiles <file_codes> <destination_folder_id>`
+
+- `copyFiles <file_codes> <destination_folder_id>`
+
+- `renameFolder <folder_id> <new_name>`
+
+- `createFolder <path> <name>`
+
+- `deleteFiles <file_codes>`
+
+- `deleteFolder <folder_id>`\
+  The folder needs to be empty.
+
 
 ## Dependencies
 

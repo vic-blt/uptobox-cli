@@ -1,7 +1,8 @@
 {
+  "name": "uptobox-cli",
   "dependencies": {
     "filesize": "^6.0.1",
     "minimist": "^1.2.0",
-    "uptobox-api": "^1.0.1"
+    "uptobox-api": "^1.0.8"
   }
 }
