@@ -69,6 +69,10 @@ async function list() {
     return list;
 }
 
+async function exportAll() {
+    return uptobox.exportAll(token).then(({data}) => !data.statusCode ? data.data.map(data => ({...data, ['file_size']: filesize(data.file_size)})) : data.message);
+}
+
 async function addFile() {
     return uptobox.addFile(argv._[1], xfss).then(({data}) => data);
 }
@@ -144,6 +148,22 @@ async function updateFile() {
     }).then(({data}) => !data.statusCode ? (data.data.updated ? `Updated` : 'Nothing to update') : data.message);
 }
 
+/*async function updateFiles() {
+    let list = await this.list(), base_name = argv.name;
+
+    for (const {name, file_code} of list) {
+        let dynamic = name.match(new RegExp(argv.regexp));
+        if (dynamic !== null && argv.regexp) {
+            let extension = name.match(/\.\w+$/g)[0];
+            argv.name = `${base_name} ${dynamic[0]}${extension}`;
+            argv._[1] = file_code;
+            console.log(await this.updateFile().then(data => `${data} : ${argv.name}`));
+        }
+    }
+
+    return 'done';
+}*/
+
 async function updateFilesPublic() {
     return uptobox.updateFilesPublic(token, argv._[1], argv._[2])
         .then(({data}) => !data.statusCode ? (data.data.updated ? `Updated ${data.data.updated}` : 'Nothing to update') : data.message);
@@ -174,7 +194,7 @@ async function deleteFiles() {
 }
 
 async function deleteFolder() {
-    return uptobox.deleteFolder(token, argv._[1]).then(({data}) => data.message);
+    return uptobox.deleteFolder(token, argv._[1], argv.force).then(({data}) => data.message);
 }
 
-module.exports = {addFile, getUserData, setSSL, setDirectDL, setSecurityLock, convertPoints, createVoucher, getDownloadLink, getStreamingLink, list, updateFile, updateFilesPublic, moveFolder, moveFiles, copyFiles, renameFolder, createFolder, deleteFiles, deleteFolder, premium};
+module.exports = { exportAll, addFile, getUserData, setSSL, setDirectDL, setSecurityLock, convertPoints, createVoucher, getDownloadLink, getStreamingLink, list, updateFile, updateFilesPublic, moveFolder, moveFiles, copyFiles, renameFolder, createFolder, deleteFiles, deleteFolder, premium };

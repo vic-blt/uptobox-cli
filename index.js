@@ -13,7 +13,8 @@ const help = `uptobox-cli [command] <options>\n
     getDownloadLink <file_code>
     getStreamingLink <file_code>
     getUserData
-    addFile <uptobox_url>
+    exportAll
+    addFile <file_code>
     updateFile <file_code> 
         --name <new_name>
         --public 0|1
@@ -31,7 +32,7 @@ const help = `uptobox-cli [command] <options>\n
     renameFolder <folder_id> <new_name>
     createFolder <path> <name>
     deleteFiles <file_codes>
-    deleteFolder <folder_id>\n`;
+    deleteFolder <folder_id> [--force]\n`;
 
 (async () => {
     const premiumFeatures = ['setSSL', 'setDirectDL', 'setSecurityLock'];
@@ -46,6 +47,7 @@ const help = `uptobox-cli [command] <options>\n
 
     switch(command){
         case 'list':
+        case 'exportAll':
             console.table(result);
             break;
 

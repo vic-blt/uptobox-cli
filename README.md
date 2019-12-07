@@ -8,18 +8,17 @@
 ## Setup
 
 - Create a `config.js` file in the same folder than `index.js`
+  ```js
+  module.exports = {
+      token: '<YOUR_API_TOKEN>',
+      premium: 0,
+      xfss: '<XFSS_SESSION_COOKIE>'
+  };
+  ```
   - `token`: Your uptobox account's token ([How to find my API token ?](https://docs.uptobox.com/#how-to-find-my-api-token)).
   - `premium`: `1` if you have a premium account, else `0`.
   - `xfss`: The XFSS cookie, it's only required for `addFile` command.
-  
-  ```js
-  let token = '<YOUR_API_TOKEN>';
-  let premium = 0;
-  let xfss = '<XFSS_SESSION_COOKIE>';
-  
-  module.exports = {token, premium, xfss};
-  ```
-  
+
 - Install dependencies : `npm install`
 
 ## Usage
@@ -51,7 +50,7 @@
     Case insensitive search. `<search_value>` can be a partial filename.
   - `--search-field <column_name>`\
     See `--order` for `<column_name>` value.
-    
+
 - `getDownloadLink <file_code>`
   
 - `getStreamingLink <file_code>`\
@@ -59,8 +58,10 @@
 
 - `getUserData`
 
+- `exportAll`
+
 - `addFile <uptobox_url>`\
-  Until there's a dedicated API endpoint for this feature, this will **ONLY** work if you log in your Uptobox account, retrieve the XFSS cookie and **KEEP** your session active (don't log out). Then save the XFSS value in the file `xfss`.\
+  Until there's a dedicated API endpoint for this feature, this will **ONLY** work if you log in your Uptobox account, retrieve the XFSS cookie and **KEEP** your session active (don't log out). Then save the XFSS value in the file `config.js`.\
   The XFSS cookie expiration is set to 1 year.\
   A simple `ok` is returned if it was successfully added to your account.
 
@@ -106,7 +107,8 @@
 - `deleteFiles <file_codes>`
 
 - `deleteFolder <folder_id>`\
-  The folder needs to be empty.
+  If the folder is not empty, an error will be thrown.\
+  If you really want to delete a folder even if **it's NOT empty**, use the `--force` option.
 
 
 ## Dependencies
