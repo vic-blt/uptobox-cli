@@ -1,4 +1,7 @@
-const functions = require('./functions.js');
+const commandName = process.argv.slice(2)[0];
+const {premium} = require('./config.js');
+const {[commandName]: command} = require('./functions.js');
+const premiumFeatures = ['setSSL', 'setDirectDL', 'setSecurityLock'];
 
 const help = `uptobox-cli [command] <options>\n
     list
@@ -35,17 +38,14 @@ const help = `uptobox-cli [command] <options>\n
     deleteFolder <folder_id> [--force]\n`;
 
 (async () => {
-    const premiumFeatures = ['setSSL', 'setDirectDL', 'setSecurityLock'];
-    const command = process.argv.slice(2)[0];
-
-    if (!functions.premium && premiumFeatures.includes(command)){
+    if (!premium && premiumFeatures.includes(commandName)){
         console.log("Your account needs to be premium to request this endpoint.\nFor more details, go to https://docs.uptobox.com/");
         process.exit();
     }
 
-    let result = functions[command] ? await functions[command]() : null;
+    let result = command ? await command() : null;
 
-    switch(command){
+    switch(commandName){
         case 'list':
         case 'exportAll':
             console.table(result);
