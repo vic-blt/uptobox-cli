@@ -191,7 +191,7 @@ async function createFolder() {
 }
 
 async function deleteFiles() {
-    return uptobox.deleteFiles(token, argv._[1]).then(({data}) => !data.statusCode ? `Deleted ${data.data.deleted} files` : data.message);
+    return uptobox.deleteFiles(token, argv._.slice(1).join(',')).then(({data}) => !data.statusCode ? `Deleted ${data.data.deleted} files` : data.message);
 }
 
 async function deleteFolder() {

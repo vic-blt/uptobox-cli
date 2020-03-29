@@ -104,7 +104,7 @@
 
 - `createFolder <path> <name>`
 
-- `deleteFiles <file_codes>`
+- `deleteFiles <file_code1> <file_code2> ...`
 
 - `deleteFolder <folder_id>`\
   If the folder is not empty, an error will be thrown.\

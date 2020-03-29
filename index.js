@@ -31,7 +31,7 @@ const help = `uptobox-cli [command] <options>\n
     copyFiles <file_codes> <destination_folder_id>
     renameFolder <folder_id> <new_name>
     createFolder <path> <name>
-    deleteFiles <file_codes>
+    deleteFiles <file_code1> <file_code2> ...
     deleteFolder <folder_id> [--force]\n`;
 
 (async () => {
