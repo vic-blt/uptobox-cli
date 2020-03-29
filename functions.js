@@ -1,6 +1,7 @@
 const uptobox = require('uptobox-api');
 const argv = require('minimist')(process.argv.slice(2));
 const filesize = require('filesize');
+const readline = require('readline');
 const {token, premium, xfss} = require('./config.js');
 
 async function getList(options) {
@@ -110,15 +111,15 @@ async function getDownloadLink() {
 
         process.stdout.write(`Wait ${seconds}s`);
         let interval = setInterval(() => {
-            process.stdout.clearLine();
-            process.stdout.cursorTo(0);
+            readline.clearLine(process.stdout, 0);
+            readline.cursorTo(process.stdout, 0);
             process.stdout.write(`Wait ${seconds -= 1}s`);
         }, 1000);
 
         await new Promise(resolve => setTimeout(() => {
             clearInterval(interval);
-            process.stdout.clearLine();
-            process.stdout.cursorTo(0);
+            readline.clearLine(process.stdout, 0);
+            readline.cursorTo(process.stdout, 0);
             resolve();
         }, seconds*1000));
     }
