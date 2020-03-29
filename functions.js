@@ -2,6 +2,8 @@ const uptobox = require('uptobox-api');
 const argv = require('minimist')(process.argv.slice(2));
 const filesize = require('filesize');
 const readline = require('readline');
+const fs = require('fs');
+const FormData = require('form-data');
 const {token, premium, xfss} = require('./config.js');
 
 async function getList(options) {
@@ -149,6 +151,7 @@ async function updateFile() {
     }).then(({data}) => !data.statusCode ? (data.data.updated ? `Updated` : 'Nothing to update') : data.message);
 }
 
+// e.g. : uptobox updateFiles --search 'The.Expanse.S04' --name 'The Expanse' --regexp 'S\d+E\d+' --public 0
 /*async function updateFiles() {
     let list = await this.list(), base_name = argv.name;
 
@@ -198,4 +201,35 @@ async function deleteFolder() {
     return uptobox.deleteFolder(token, argv._[1], argv.force).then(({data}) => data.message);
 }
 
-module.exports = { exportAll, addFile, getUserData, setSSL, setDirectDL, setSecurityLock, convertPoints, createVoucher, getDownloadLink, getStreamingLink, list, updateFile, updateFilesPublic, moveFolder, moveFiles, copyFiles, renameFolder, createFolder, deleteFiles, deleteFolder, premium };
+async function uploadFiles() {
+    let promises = [];
+
+    for (let filePath of argv._.slice(1)) {
+        let formData = new FormData();
+        let uploadLink = await uptobox.getUploadUrl(token).then(({data}) => !data.statusCode ? data.data.uploadLink : new Error(data.message));
+
+        if (uploadLink instanceof Error) {
+            return `Error at uptobox.getUploadUrl : ${uploadLink.message}`;
+        }
+
+        formData.append('files[]', fs.createReadStream(filePath));
+
+        let promise = uptobox.uploadFile(`https:${uploadLink}`, formData, formData.getHeaders()).then(({data: {files: [response]}}) => response);
+
+        /*
+            TODO: add upload progress listener on axios instance
+            Code below was tested with got
+            .on('uploadProgress', ({percent}) => {
+                readline.clearLine(process.stdout, 0);
+                readline.cursorTo(process.stdout, 0);
+                process.stdout.write(`Upload of ${filePath} : ${(percent*100).toFixed(0)}%`);
+            })
+        */
+
+        promises.push(promise);
+    }
+
+    return Promise.all(promises);
+}
+
+module.exports = { exportAll, addFile, getUserData, setSSL, setDirectDL, setSecurityLock, convertPoints, createVoucher, getDownloadLink, getStreamingLink, list, updateFile, updateFilesPublic, moveFolder, moveFiles, copyFiles, renameFolder, createFolder, deleteFiles, deleteFolder, uploadFiles };

@@ -35,7 +35,8 @@ const help = `uptobox-cli [command] <options>\n
     renameFolder <folder_id> <new_name>
     createFolder <path> <name>
     deleteFiles <file_code1> <file_code2> ...
-    deleteFolder <folder_id> [--force]\n`;
+    deleteFolder <folder_id> [--force]
+    uploadFiles <file_path1> <file_path2> ...\n`;
 
 (async () => {
     if (!premium && premiumFeatures.includes(commandName)){

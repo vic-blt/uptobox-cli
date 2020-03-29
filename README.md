@@ -110,9 +110,11 @@
   If the folder is not empty, an error will be thrown.\
   If you really want to delete a folder even if **it's NOT empty**, use the `--force` option.
 
+- `uploadFiles <file_path1> <file_path2> ...`
 
 ## Dependencies
 
 - [filesize](https://www.npmjs.com/package/filesize)
 - [uptobox-api](https://www.npmjs.com/package/uptobox-api)
 - [minimist](https://www.npmjs.com/package/minimist)
+- [form-data](https://www.npmjs.com/package/form-data)
