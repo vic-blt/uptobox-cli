@@ -112,6 +112,17 @@
 
 - `uploadFiles <file_path1> <file_path2> ...`
 
+- `getFilesDetails <file_code1> <file_code2> ...`
+
+- `getPublicFolderContent <folder_id> <folder_hash>`\
+  **Options:**
+  - `--limit <limit>`\
+    Number of files to retrieve, from `1` to `100`.\
+    **Default:** `100`.
+  - `--offset <offset>`\
+    Retrieve from the specified offset.\
+    **Default:** `0`.
+
 ## Dependencies
 
 - [filesize](https://www.npmjs.com/package/filesize)

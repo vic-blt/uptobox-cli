@@ -65,7 +65,7 @@ async function list() {
             }));
             break;
         case 'folder':
-            list = data.folders.map(({fld_id, fld_name, name}) => ({id: fld_id, name, path: fld_name}));
+            list = data.folders.map(({fld_id, fld_name, name, hash}) => ({id: fld_id, name, path: fld_name, hash}));
             break;
     }
 
@@ -232,4 +232,17 @@ async function uploadFiles() {
     return Promise.all(promises);
 }
 
-module.exports = { exportAll, addFile, getUserData, setSSL, setDirectDL, setSecurityLock, convertPoints, createVoucher, getDownloadLink, getStreamingLink, list, updateFile, updateFilesPublic, moveFolder, moveFiles, copyFiles, renameFolder, createFolder, deleteFiles, deleteFolder, uploadFiles };
+async function getFilesDetails() {
+    return uptobox.getFilesDetails(argv._.slice(1).join(',')).then(({data}) => !data.statusCode ? data.data.list : data.message);
+}
+
+async function getPublicFolderContent() {
+    return uptobox.getPublicFolderContent({
+        folder: argv._[1],
+        hash: argv._[2],
+        limit: argv.limit || 100,
+        offset: argv.offset || 0
+    }).then(({data}) => !data.statusCode ? data.data.list : data.message);
+}
+
+module.exports = { exportAll, addFile, getUserData, setSSL, setDirectDL, setSecurityLock, convertPoints, createVoucher, getDownloadLink, getStreamingLink, list, updateFile, updateFilesPublic, moveFolder, moveFiles, copyFiles, renameFolder, createFolder, deleteFiles, deleteFolder, uploadFiles, getFilesDetails, getPublicFolderContent };

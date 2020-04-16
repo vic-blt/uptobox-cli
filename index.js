@@ -36,7 +36,11 @@ const help = `uptobox-cli [command] <options>\n
     createFolder <path> <name>
     deleteFiles <file_code1> <file_code2> ...
     deleteFolder <folder_id> [--force]
-    uploadFiles <file_path1> <file_path2> ...\n`;
+    uploadFiles <file_path1> <file_path2> ...
+    getFilesDetails <file_code1> <file_code2> ...
+    getPublicFolderContent <folder_id> <folder_hash>
+        --limit 1..100
+        --offset <offset>\n`;
 
 (async () => {
     if (!premium && premiumFeatures.includes(commandName)){
