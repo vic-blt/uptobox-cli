@@ -233,7 +233,14 @@ async function uploadFiles() {
 }
 
 async function getFilesDetails() {
-    return uptobox.getFilesDetails(argv._.slice(1).join(',')).then(({data}) => !data.statusCode ? data.data.list : data.message);
+    return uptobox.getFilesDetails(argv._.slice(1).join(','))
+        .then(({data}) => !data.statusCode ? data.data.list.map(({file_name, file_code, file_size, available_uts, need_premium}) => ({
+            name: file_name,
+            size: filesize(file_size),
+            file_code,
+            uptostream: available_uts,
+            need_premium
+        })) : data.message);
 }
 
 async function getPublicFolderContent() {

@@ -53,6 +53,8 @@ const help = `uptobox-cli [command] <options>\n
     switch(commandName){
         case 'list':
         case 'exportAll':
+        case 'getFilesDetails':
+        case 'getPublicFolderContent':
             console.table(result);
             break;
 
