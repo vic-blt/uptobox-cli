@@ -11,13 +11,11 @@
   ```js
   module.exports = {
       token: '<YOUR_API_TOKEN>',
-      premium: 0,
-      xfss: '<XFSS_SESSION_COOKIE>'
+      premium: 0
   };
   ```
   - `token`: Your uptobox account's token ([How to find my API token ?](https://docs.uptobox.com/#how-to-find-my-api-token)).
   - `premium`: `1` if you have a premium account, else `0`.
-  - `xfss`: The XFSS cookie, it's only required for `addFile` command.
 
 - Install dependencies : `npm install`
 
@@ -60,10 +58,7 @@
 
 - `exportAll`
 
-- `addFile <uptobox_url>`\
-  Until there's a dedicated API endpoint for this feature, this will **ONLY** work if you log in your Uptobox account, retrieve the XFSS cookie and **KEEP** your session active (don't log out). Then save the XFSS value in the file `config.js`.\
-  The XFSS cookie expiration is set to 1 year.\
-  A simple `ok` is returned if it was successfully added to your account.
+- `addFile <file_code>`
 
 - `updateFile <file_code>`\
   **Options:**

@@ -77,7 +77,7 @@ async function exportAll() {
 }
 
 async function addFile() {
-    return uptobox.addFile(argv._[1], xfss).then(({data}) => data);
+    return uptobox.addFile(token, argv._[1]).then(({data}) => !data.statusCode ? data.data : data.message);
 }
 
 async function getUserData() {
