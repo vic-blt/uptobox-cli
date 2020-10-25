@@ -4,6 +4,6 @@
     "filesize": "^6.1.0",
     "form-data": "^3.0.0",
     "minimist": "^1.2.5",
-    "uptobox-api": "^1.2.4"
+    "uptobox-api": "^2.0.0"
   }
 }

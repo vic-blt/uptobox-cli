@@ -1,16 +1,19 @@
-const uptobox = require('uptobox-api');
-const argv = require('minimist')(process.argv.slice(2));
-const filesize = require('filesize');
-const readline = require('readline');
-const fs = require('fs');
-const FormData = require('form-data');
-const {token, premium, xfss} = require('./config.js');
+const uptobox = require('uptobox-api')
+const argv = require('minimist')(process.argv.slice(2))
+const filesize = require('filesize')
+const readline = require('readline')
+const fs = require('fs')
+const FormData = require('form-data')
+const {token, premium} = require('./config.js')
 
 async function getList(options) {
-    return uptobox.list(options).then(({data}) => !data.statusCode ? data.data : ({error: data.message}));
+    return uptobox.list(options)
+        .then(({statusCode, data, message}) => !statusCode ? data : new Error(message))
+        .catch(error => error)
 }
 
 async function list() {
+    let list = []
     let options = {
         token: token,
         path: argv.path || '//',
@@ -18,126 +21,159 @@ async function list() {
         offset: argv.offset || 0,
         orderBy: argv.order || 'file_name',
         dir: argv.dir || 'asc'
-    };
-    let list, type = argv.type || 'file';
+    }
+    const type = argv.type || 'file'
 
     if (argv.search) {
-        options['searchField'] = argv['search-field'] || 'file_name';
-        options['search'] = argv.search;
+        options['searchField'] = argv['search-field'] || 'file_name'
+        options['search'] = argv.search
     }
 
-    let data = await getList(options);
+    let data = await getList(options)
 
-    if (data.error){
-        console.log(data.error);
-        process.exit();
+    if (data instanceof Error){
+        return data
     }
 
     switch (type) {
         case 'file':
-            list = data.files;
+            list = data.files
 
             if (!argv.limit) {
-                let requests = [], loopLimit = data.pageCount - Math.ceil(options.offset / options.limit);
+                let requests = [], loopLimit = data.pageCount - Math.ceil(options.offset / options.limit)
 
                 for (let i = 0; i < loopLimit; i++) {
-                    if ((data.currentFolder.fileCount - options.offset) < options.limit) continue;
-                    options.offset += options.limit;
-                    requests.push(getList(options));
+                    if ((data.currentFolder.fileCount - options.offset) < options.limit) continue
+                    options.offset += options.limit
+                    requests.push(getList(options))
                 }
 
                 let results = await Promise.all(requests)
                     .then(values =>
                         values.map(value => value.files)
                             .reduce((res, val) => res.concat(val), [])
-                    );
+                    )
 
-                list.push(...results);
+                list.push(...results)
             }
 
-            list = list.map(({file_name, file_public, file_password, file_descr, file_code, file_size}) => ({
+            list = list.map(({file_name, file_public, file_password, file_descr, file_created, file_code, file_size}) => ({
                 name: file_name,
                 size: filesize(file_size),
                 public: file_public,
                 password: file_password,
                 description: file_descr,
-                file_code
-            }));
-            break;
+                file_code,
+                // TODO: feature: add file_created after console.table is replaced by another display system
+            }))
+            break
         case 'folder':
-            list = data.folders.map(({fld_id, fld_name, name, hash}) => ({id: fld_id, name, path: fld_name, hash}));
-            break;
+            list = data.folders.map(({fld_id, fld_name, name, hash}) => ({id: fld_id, name, path: fld_name, hash}))
+            break
     }
 
-    return list;
+    return list
 }
 
 async function exportAll() {
-    return uptobox.exportAll(token).then(({data}) => !data.statusCode ? data.data.map(data => ({...data, ['file_size']: filesize(data.file_size)})) : data.message);
+    return uptobox.exportAll(token)
+        .then(({statusCode, data, message}) =>
+            !statusCode
+                ? data.map(details => ({...details, ['file_size']: filesize(details.file_size)}))
+                : message
+        )
+        .catch(error => error)
 }
 
 async function addFile() {
-    return uptobox.addFile(token, argv._[1]).then(({data}) => !data.statusCode ? data.data : data.message);
+    return uptobox.addFile(token, argv._[1])
+        .then(({statusCode, data, message}) => !statusCode ? data : message)
+        .catch(error => error)
 }
 
 async function getUserData() {
-    return uptobox.getUserData(token).then(({data}) => !data.statusCode ? data.data : data.message);
+    return uptobox.getUserData(token)
+        .then(({statusCode, data, message}) => !statusCode ? data : message)
+        .catch(error => error)
 }
 
 async function setSSL() {
-    return uptobox.setSSL(token, argv._[1]).then(({data}) => data.message);
+    return uptobox.setSSL(token, argv._[1])
+        .then(({message}) => message)
+        .catch(error => error)
 }
 
 async function setDirectDL() {
-    return uptobox.setDirectDL(token, argv._[1]).then(({data}) => data.message);
+    return uptobox.setDirectDL(token, argv._[1])
+        .then(({message}) => message)
+        .catch(error => error)
 }
 
 async function setSecurityLock() {
-    return uptobox.setSecurityLock(token, argv._[1]).then(({data}) => data.message);
+    return uptobox.setSecurityLock(token, argv._[1])
+        .then(({message}) => message)
+        .catch(error => error)
 }
 
 async function convertPoints() {
-    return uptobox.convertPoints(token, argv._[1]).then(({data}) => !data.statusCode ? `You're now premium until ${data.data}` : data.message);
+    return uptobox.convertPoints(token, argv._[1])
+        .then(({statusCode, data, message}) => !statusCode ? `You're now premium until ${data}` : message)
+        .catch(error => error)
 }
 
 async function createVoucher() {
-    return uptobox.createVoucher(token, argv._[1], argv._[2]).then(({data}) => !data.statusCode ? data.data : data.message);
+    return uptobox.createVoucher(token, argv._[1], argv._[2])
+        .then(({statusCode, data, message}) => !statusCode ? data : message)
+        .catch(error => error)
 }
 
 async function getDownloadLink() {
-    let options = {token, file_code: argv._[1]};
+    let options = {token, file_code: argv._[1]}
 
     if (!premium) {
-        let {seconds, waitingToken} = await uptobox.getDownloadLink(options).then(({data: {data: {waiting, waitingToken}}}) => ({seconds: waiting, waitingToken}));
-        options['waitingToken'] = waitingToken;
+        let {seconds, waitingToken} = await uptobox.getDownloadLink(options)
+            .then(({statusCode, data: {waiting, waitingToken}, message}) =>
+                statusCode === 0 || statusCode === 16 // 0: Success or 16: Waiting needed
+                    ? ({seconds: waiting+1, waitingToken})
+                    : message
+            )
+            .catch(error => error)
 
-        process.stdout.write(`Wait ${seconds}s`);
+        options['waitingToken'] = waitingToken
+
         let interval = setInterval(() => {
-            readline.clearLine(process.stdout, 0);
-            readline.cursorTo(process.stdout, 0);
-            process.stdout.write(`Wait ${seconds -= 1}s`);
-        }, 1000);
+            readline.clearLine(process.stdout, 0)
+            readline.cursorTo(process.stdout, 0)
+            process.stdout.write(`Wait ${--seconds}s`)
+        }, 1000)
 
         await new Promise(resolve => setTimeout(() => {
-            clearInterval(interval);
-            readline.clearLine(process.stdout, 0);
-            readline.cursorTo(process.stdout, 0);
-            resolve();
-        }, seconds*1000));
+            clearInterval(interval)
+            readline.clearLine(process.stdout, 0)
+            readline.cursorTo(process.stdout, 0)
+            resolve()
+        }, seconds*1000))
     }
 
-    return uptobox.getDownloadLink(options).then(({data}) => !data.statusCode ? data.data.dlLink : data.message);
+    return uptobox.getDownloadLink(options)
+        .then(({statusCode, message, data}) => !statusCode ? data.dlLink : message)
+        .catch(error => error)
 }
 
 async function getStreamingLink() {
-    let options = {token, file_code: argv._[1]};
+    let options = {token, file_code: argv._[1]}
 
     if (!premium) {
-        options = await uptobox.getStreamingLink(options).then(({data: {data: {pin, checkHash}}}) => ({pin, check: checkHash}));
-        await uptobox.validatePin(token, options.pin);
+        options = await uptobox.getStreamingLink(options)
+            .then(({data: {pin, checkHash}}) => ({pin, check: checkHash}))
+            .catch(error => error)
+
+        await uptobox.validatePin(token, options.pin)
     }
 
-    return uptobox.getStreamingLink(options).then(({data}) => !data.statusCode ? data.data.streamLinks : data.message);
+    return uptobox.getStreamingLink(options)
+        .then(({statusCode, data, message}) => !statusCode ? data.streamLinks : message)
+        .catch(error => error)
 }
 
 async function updateFile() {
@@ -148,108 +184,115 @@ async function updateFile() {
         public: argv.public,
         description: argv.desc,
         password: argv.passwd
-    }).then(({data}) => !data.statusCode ? (data.data.updated ? `Updated` : 'Nothing to update') : data.message);
+    })
+    .then(({statusCode, data, message}) =>
+        !statusCode
+            ? (data.updated ? `Updated` : 'Nothing to update')
+            : message
+    )
+    .catch(error => error)
 }
-
-// e.g. : uptobox updateFiles --search 'The.Expanse.S04' --name 'The Expanse' --regexp 'S\d+E\d+' --public 0
-/*async function updateFiles() {
-    let list = await this.list(), base_name = argv.name;
-
-    for (const {name, file_code} of list) {
-        let dynamic = name.match(new RegExp(argv.regexp));
-        if (dynamic !== null && argv.regexp) {
-            let extension = name.match(/\.\w+$/g)[0];
-            argv.name = `${base_name} ${dynamic[0]}${extension}`;
-            argv._[1] = file_code;
-            console.log(await this.updateFile().then(data => `${data} : ${argv.name}`));
-        }
-    }
-
-    return 'done';
-}*/
 
 async function updateFilesPublic() {
     return uptobox.updateFilesPublic(token, argv._[1], argv._[2])
-        .then(({data}) => !data.statusCode ? (data.data.updated ? `Updated ${data.data.updated}` : 'Nothing to update') : data.message);
+        .then(({statusCode, data, message}) =>
+            !statusCode
+                ? (data.updated ? `Updated ${data.updated}` : 'Nothing to update')
+                : message
+        )
+        .catch(error => error)
 }
 
 async function moveFolder() {
-    return uptobox.moveFolder(token, argv._[1], argv._[2]).then(({data}) => data.message);
+    return uptobox.moveFolder(token, argv._[1], argv._[2])
+        .then(({message}) => message)
+        .catch(error => error)
 }
 
 async function moveFiles() {
-    return uptobox.moveFiles(token, argv._[1], argv._[2]).then(({data}) => !data.statusCode ? `Moved ${data.data.updated} files` : data.message);
+    return uptobox.moveFiles(token, argv._[1], argv._[2])
+        .then(({statusCode, data, message}) => !statusCode ? `Moved ${data.updated} files` : message)
+        .catch(error => error)
 }
 
 async function copyFiles() {
-    return uptobox.copyFiles(token, argv._[1], argv._[2]).then(({data}) => data.message);
+    return uptobox.copyFiles(token, argv._[1], argv._[2])
+        .then(({message}) => message)
+        .catch(error => error)
 }
 
 async function renameFolder() {
-    return uptobox.renameFolder(token, argv._[1], argv._[2]).then(({data}) => data.message);
+    return uptobox.renameFolder(token, argv._[1], argv._[2])
+        .then(({message}) => message)
+        .catch(error => error)
 }
 
 async function createFolder() {
-    return uptobox.createFolder(token, argv._[1], argv._[2]).then(({data}) => data.message);
+    return uptobox.createFolder(token, argv._[1], argv._[2])
+        .then(({message}) => message)
+        .catch(error => error)
 }
 
 async function deleteFiles() {
-    return uptobox.deleteFiles(token, argv._.slice(1).join(',')).then(({data}) => !data.statusCode ? `Deleted ${data.data.deleted} files` : data.message);
+    return uptobox.deleteFiles(token, argv._.slice(1).join(','))
+        .then(({statusCode, data, message}) => !statusCode ? `Deleted ${data.deleted} files` : message)
+        .catch(error => error)
 }
 
 async function deleteFolder() {
-    return uptobox.deleteFolder(token, argv._[1], argv.force).then(({data}) => data.message);
+    return uptobox.deleteFolder(token, argv._[1], argv.force)
+        .then(({message}) => message)
+        .catch(error => error)
 }
 
 async function uploadFiles() {
-    let promises = [];
+    let formData = new FormData()
 
-    for (let filePath of argv._.slice(1)) {
-        let formData = new FormData();
-        let uploadLink = await uptobox.getUploadUrl(token).then(({data}) => !data.statusCode ? data.data.uploadLink : new Error(data.message));
+    let uploadLink = await uptobox.getUploadUrl(token)
+        .then(({statusCode, data, message}) => !statusCode ? data.uploadLink : new Error(message))
+        .catch(error => error)
 
-        if (uploadLink instanceof Error) {
-            return `Error at uptobox.getUploadUrl : ${uploadLink.message}`;
-        }
-
-        formData.append('files[]', fs.createReadStream(filePath));
-
-        let promise = uptobox.uploadFile(`https:${uploadLink}`, formData, formData.getHeaders()).then(({data: {files: [response]}}) => response);
-
-        /*
-            TODO: add upload progress listener on axios instance
-            Code below was tested with got
-            .on('uploadProgress', ({percent}) => {
-                readline.clearLine(process.stdout, 0);
-                readline.cursorTo(process.stdout, 0);
-                process.stdout.write(`Upload of ${filePath} : ${(percent*100).toFixed(0)}%`);
-            })
-        */
-
-        promises.push(promise);
+    if (uploadLink instanceof Error) {
+        console.log(`Error at uptobox.getUploadUrl : ${uploadLink}`)
+        process.exit()
     }
 
-    return Promise.all(promises);
+    for (let filePath of argv._.slice(1)) {
+        formData.append('files', fs.createReadStream(filePath))
+    }
+
+    // TODO: fix: when uploading several files, the promise is resolved when the first file is uploaded and the remaining files aren't uploaded
+    return uptobox.uploadFile(`https:${uploadLink}`, formData)
+        .on('uploadProgress', ({percent, total}) => {
+            readline.clearLine(process.stdout, 0)
+            readline.cursorTo(process.stdout, 0)
+            process.stdout.write(`Upload of ${filesize(total)} : ${(percent*100).toFixed(0)}%`)
+        })
+        .json()
+        .then(({files}) => files)
+        .catch(error => error)
 }
 
 async function getFilesDetails() {
     return uptobox.getFilesDetails(argv._.slice(1).join(','))
-        .then(({data}) => !data.statusCode ? data.data.list.map(({file_name, file_code, file_size, available_uts, need_premium}) => ({
-            name: file_name,
-            size: filesize(file_size),
-            file_code,
-            uptostream: available_uts,
-            need_premium
-        })) : data.message);
+        .then(({statusCode, data, message}) =>
+            !statusCode
+                ? data.list.map(({file_name, file_code, file_size, available_uts, need_premium}) => ({
+                    name: file_name,
+                    size: filesize(file_size),
+                    file_code,
+                    uptostream: available_uts,
+                    need_premium
+                }))
+                : message
+        )
+        .catch(error => error)
 }
 
 async function getPublicFolderContent() {
-    return uptobox.getPublicFolderContent({
-        folder: argv._[1],
-        hash: argv._[2],
-        limit: argv.limit || 100,
-        offset: argv.offset || 0
-    }).then(({data}) => !data.statusCode ? data.data.list : data.message);
+    return uptobox.getPublicFolderContent(argv._[1], argv._[2],argv.limit || 100,argv.offset || 0)
+        .then(({statusCode, data, message}) => !statusCode ? data.list : message)
+        .catch(error => error)
 }
 
-module.exports = { exportAll, addFile, getUserData, setSSL, setDirectDL, setSecurityLock, convertPoints, createVoucher, getDownloadLink, getStreamingLink, list, updateFile, updateFilesPublic, moveFolder, moveFiles, copyFiles, renameFolder, createFolder, deleteFiles, deleteFolder, uploadFiles, getFilesDetails, getPublicFolderContent };
+module.exports = { exportAll, addFile, getUserData, setSSL, setDirectDL, setSecurityLock, convertPoints, createVoucher, getDownloadLink, getStreamingLink, list, updateFile, updateFilesPublic, moveFolder, moveFiles, copyFiles, renameFolder, createFolder, deleteFiles, deleteFolder, uploadFiles, getFilesDetails, getPublicFolderContent }

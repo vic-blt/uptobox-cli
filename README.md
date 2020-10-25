@@ -10,9 +10,9 @@
 - Create a `config.js` file in the same folder than `index.js`
   ```js
   module.exports = {
-      token: '<YOUR_API_TOKEN>',
+      token: '<YOUR_USER_TOKEN>',
       premium: 0
-  };
+  }
   ```
   - `token`: Your uptobox account's token ([How to find my API token ?](https://docs.uptobox.com/#how-to-find-my-api-token)).
   - `premium`: `1` if you have a premium account, else `0`.

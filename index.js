@@ -1,7 +1,6 @@
-const commandName = process.argv.slice(2)[0];
-const {premium} = require('./config.js');
-const {[commandName]: command} = require('./functions.js');
-const premiumFeatures = ['setSSL', 'setDirectDL', 'setSecurityLock'];
+const commandName = process.argv.slice(2)[0]
+const {premium} = require('./config.js')
+const {[commandName]: command} = require('./functions.js')
 
 const help = `uptobox-cli [command] <options>\n
     list
@@ -42,24 +41,25 @@ const help = `uptobox-cli [command] <options>\n
         --limit 1..100
         --offset <offset>\n`;
 
-(async () => {
-    if (!premium && premiumFeatures.includes(commandName)){
-        console.log("Your account needs to be premium to request this endpoint.\nFor more details, go to https://docs.uptobox.com/");
-        process.exit();
+(async function () {
+    if (!premium && ['setSSL', 'setDirectDL', 'setSecurityLock'].includes(commandName)){
+        console.log("Your account needs to be premium to request this endpoint.\nFor more details, go to https://docs.uptobox.com/")
+        process.exit()
     }
 
-    let result = command ? await command() : null;
+    let result = command ? await command() : null
 
     switch(commandName){
         case 'list':
         case 'exportAll':
         case 'getFilesDetails':
         case 'getPublicFolderContent':
-            console.table(result);
-            break;
+            // TODO: feature: replace console.table in order to use columns with fixed sizes and display more fields
+            result instanceof Error ? console.log(result) : console.table(result)
+            break
 
         default:
-            console.log(result || help);
-            break;
+            console.log(result || help)
+            break
     }
-})();
+})()
