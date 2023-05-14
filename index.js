@@ -11,7 +11,10 @@ const help = `uptobox-cli [command] <options>\n
         --order 'file_name'|'file_size'|'file_created'|'file_downloads'|'transcoded'
         --dir 'asc'|'desc'
         --search <search_value>
-        --search-field 'file_name'|'file_size'|'file_created'|'file_downloads'|'transcoded'
+        --search-field 'file_name'|'file_size'|'file_created'|'file_downloads'|'transcoded' (default: file_name)
+        --exactSearch 0|1
+        --currentFolderSearch 0|1
+        --oldSearch 0|1
     getDownloadLink <file_code>
     getStreamingLink <file_code>
     getUserData
@@ -28,6 +31,8 @@ const help = `uptobox-cli [command] <options>\n
     setSSL 0|1
     setSecurityLock 0|1
     setDirectDL 0|1
+    setUptostreamMiniature 0|1
+    setDeletionNotification 0|1
     moveFolder <folder_id> <destination_folder_id>
     moveFiles <file_codes> <destination_folder_id>
     copyFiles <file_codes> <destination_folder_id>
@@ -42,7 +47,7 @@ const help = `uptobox-cli [command] <options>\n
         --offset <offset>\n`;
 
 (async function () {
-    if (!premium && ['setSSL', 'setDirectDL', 'setSecurityLock'].includes(commandName)){
+    if (!premium && ['setSSL', 'setDirectDL', 'setSecurityLock', 'setUptostreamMiniature'].includes(commandName)){
         console.log("Your account needs to be premium to request this endpoint.\nFor more details, go to https://docs.uptobox.com/")
         process.exit()
     }

@@ -48,6 +48,12 @@
     Case insensitive search. `<search_value>` can be a partial filename.
   - `--search-field <column_name>`\
     See `--order` for `<column_name>` value.
+  - `--exactSearch 0|1`\
+    Search should match with the exact value only.
+  - `--currentFolderSearch 0|1`\
+    Search in current folder only.
+  - `--oldSearch 0|1`\
+    Use old search engine.
 
 - `getDownloadLink <file_code>`
   
@@ -88,6 +94,12 @@
 
 - `setDirectDL 0|1` (**Requires an Uptobox premium account**)\
   Automatically triggers the download when reaching an Uptobox link.
+
+- `setUptostreamMiniature 0|1` (**Requires an Uptobox premium account**)\
+  Show the UTS player miniature when visiting an uptobox download link.
+
+- `setDeletionNotification 0|1`\
+  Send you an email when your files are removed from uptobox.
 
 - `moveFolder <folder_id> <destination_folder_id>`
 

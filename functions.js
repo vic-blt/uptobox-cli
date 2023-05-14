@@ -27,6 +27,9 @@ async function list() {
     if (argv.search) {
         options['searchField'] = argv['search-field'] || 'file_name'
         options['search'] = argv.search
+        options['exactSearch'] = argv.exactSearch
+        options['currentFolderSearch'] = argv.currentFolderSearch
+        options['oldSearch'] = argv.oldSearch
     }
 
     let data = await getList(options)
@@ -105,6 +108,18 @@ async function setSSL() {
 
 async function setDirectDL() {
     return uptobox.setDirectDL(token, argv._[1])
+        .then(({message}) => message)
+        .catch(error => error)
+}
+
+async function setUptostreamMiniature() {
+    return uptobox.setUptostreamMiniature(token, argv._[1])
+        .then(({message}) => message)
+        .catch(error => error)
+}
+
+async function setDeletionNotification() {
+    return uptobox.setDeletionNotification(token, argv._[1])
         .then(({message}) => message)
         .catch(error => error)
 }
@@ -295,4 +310,4 @@ async function getPublicFolderContent() {
         .catch(error => error)
 }
 
-module.exports = { exportAll, addFile, getUserData, setSSL, setDirectDL, setSecurityLock, convertPoints, createVoucher, getDownloadLink, getStreamingLink, list, updateFile, updateFilesPublic, moveFolder, moveFiles, copyFiles, renameFolder, createFolder, deleteFiles, deleteFolder, uploadFiles, getFilesDetails, getPublicFolderContent }
+module.exports = { exportAll, addFile, getUserData, setSSL, setDirectDL, setSecurityLock, convertPoints, createVoucher, getDownloadLink, getStreamingLink, list, updateFile, updateFilesPublic, moveFolder, moveFiles, copyFiles, renameFolder, createFolder, deleteFiles, deleteFolder, uploadFiles, getFilesDetails, getPublicFolderContent, setUptostreamMiniature, setDeletionNotification }
